@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TON 618 — Film preview &amp; exporter</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 14px; align-items: center; padding: 14px 22px;
+         background: linear-gradient(transparent, rgba(0,0,0,.65)); color: #cfd6e4; font-size: 13px; letter-spacing: .08em;
+         opacity: 0; transition: opacity .4s; }
+  body:hover #bar { opacity: 1; }
+  #bar button { background: none; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 4px; width: 38px; height: 28px; cursor: pointer; }
+  #scrub { flex: 1; accent-color: #ffb266; }
+  #bar select { background: #111; color: #ddd; border: 1px solid #444; border-radius: 4px; padding: 3px 6px; }
+  #err { display: none; position: fixed; top: 40%; width: 100%; text-align: center; color: #f88; font-size: 16px; }
+  body.export #bar { display: none; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="err"></div>
+<div id="bar">
+  <button id="play" title="Play / pause (space)">&#10074;&#10074;</button>
+  <span id="time">0:00</span>
+  <input id="scrub" type="range" min="0" max="87" step="0.01" value="0">
+  <label><input id="captions" type="checkbox" checked> captions</label>
+  <select id="res" title="Render resolution">
+    <option value="0.35">Draft</option>
+    <option value="0.5" selected>Balanced</option>
+    <option value="0.75">High</option>
+    <option value="1">Native</option>
+  </select>
+</div>
+<script src="src/shaders.js"></script>
+<script src="src/noise.js"></script>
+<script src="src/timeline.js"></script>
+<script src="src/overlay.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

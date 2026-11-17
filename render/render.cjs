@@ -92,7 +92,7 @@ const server = http.createServer((req, res) => {
     return;
   }
   let p = decodeURIComponent(url.pathname);
-  if (p === '/') p = '/index.html';
+  if (p === '/') p = '/film.html';
   const file = path.join(ROOT, p);
   if (!file.startsWith(ROOT) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
@@ -113,7 +113,7 @@ const server = http.createServer((req, res) => {
   if (arg('defs')) q.set('defs', arg('defs'));
   if (STILLS) q.set('times', STILLS);
   else { q.set('start', START); if (END !== undefined) q.set('end', END); }
-  await page.goto(`http://127.0.0.1:${port}/index.html?${q}`);
+  await page.goto(`http://127.0.0.1:${port}/film.html?${q}`);
   await finished;
   await browser.close();
   if (ff) { ff.stdin.end(); await new Promise((r) => ff.on('exit', r)); }
