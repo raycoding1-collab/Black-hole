@@ -547,6 +547,15 @@
     body.classList.add('no-webgl');
     $('fb-msg').textContent = msg + ' You can still watch the film.';
   }
+  // hide film controls until the film files are actually deployed next to the page
+  fetch('media/TON618_1080p.mp4', { method: 'HEAD' }).then((r) => { if (!r.ok) throw 0; }).catch(() => {
+    ['m-film', 'hero-film', 'c-cta', 'fb-film'].forEach((id) => { const el = $(id); if (el) el.style.display = 'none'; });
+    body.classList.add('no-film');
+  });
+  fetch('media/TON618_4K.mp4', { method: 'HEAD' }).then((r) => { if (!r.ok) throw 0; }).catch(() => {
+    const a = document.querySelector('.film-meta a'); if (a) a.remove();
+  });
+
   // let the loader paint before compiling shaders / generating the noise volume
   requestAnimationFrame(() => setTimeout(boot, 60));
 })();
