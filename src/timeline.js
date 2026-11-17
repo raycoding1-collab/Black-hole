@@ -77,19 +77,19 @@
       keys: prep([
         { t: 38.1, D: 62, az: 164, el: 26,   roll: 0, fov: FOV_SOLAR, flat: true },
         { t: 41.8, D: 62, az: 164.6, el: 25.9, roll: 0, fov: FOV_SOLAR, flat: true },
-        { t: 50.0, D: 62, az: 167.5, el: 25.4, roll: 0, fov: 46 },
-        { t: 56.2, D: 60, az: 171, el: 25,   roll: 0, fov: 47 },
+        { t: 50.0, D: 62, az: 167.5, el: 25.4, roll: 0, fov: 46, ex: 0.8 },
+        { t: 56.2, D: 60, az: 171, el: 25,   roll: 0, fov: 47, ex: 0.8 },
       ]),
     },
     {
       name: 'power', start: 56.7, end: BH.DURATION, fadeIn: [56.7, 57.4], fadeOut: [82.6, 84.2], timeOffset: 20,
       keys: prep([
-        { t: 56.7, D: 34,  az: 205, el: 36,  roll: 0,  fov: 50 },
-        { t: 62.5, D: 21,  az: 238, el: 16,  roll: 5,  fov: 56 },
-        { t: 68.0, D: 14.6, az: 270, el: 7.4, roll: 11, fov: 62 },
-        { t: 72.0, D: 14.2, az: 290, el: 6.8, roll: 12, fov: 62 },
-        { t: 78.0, D: 44,  az: 320, el: 9.5, roll: 2,  fov: 46 },
-        { t: 84.2, D: 76,  az: 336, el: 10.5, roll: 0, fov: 40 },
+        { t: 56.7, D: 34,  az: 205, el: 36,  roll: 0,  fov: 50, ex: 0.5 },
+        { t: 62.5, D: 22,  az: 238, el: 17,  roll: 5,  fov: 54, ex: 0.4 },
+        { t: 68.0, D: 17.5, az: 268, el: 9.5, roll: 10, fov: 58, ex: 0.33 },
+        { t: 72.0, D: 17,  az: 288, el: 8.8, roll: 11, fov: 58, ex: 0.36, ty: 0 },
+        { t: 78.0, D: 44,  az: 320, el: 9.5, roll: 2,  fov: 46, ex: 0.8, ty: -5.5 },
+        { t: 84.2, D: 76,  az: 336, el: 10.5, roll: 0, fov: 40, ex: 0.9, ty: -9 },
       ]),
     },
   ];
@@ -131,7 +131,7 @@
   const norm = (a) => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
   const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
-  BH.frameState = function (t) {
+  BH.frameState = function (t, aspect) {
     let take = takes[takes.length - 1];
     for (const tk of takes) { if (t < tk.end) { take = tk; break; } }
     const K = take.keys;
@@ -139,7 +139,7 @@
     const az = track(K, t, 'az') * D2R;
     const el = track(K, t, 'el') * D2R;
     const roll = track(K, t, 'roll');
-    const tanHalf = Math.exp(track(K, t, 'lF'));
+    const tanHalf = Math.exp(track(K, t, 'lF')) * (16 / 9) / (aspect || 16 / 9);   // keep the 16:9-designed horizontal framing
     const ex = track(K, t, 'ex');
     const ty = track(K, t, 'ty');
 
@@ -163,7 +163,9 @@
       exposure: 0.95 * ex * farBoost,
       diskTime: (t - take.start + take.timeOffset) * 3.0,
       jetTime: t,
-      bloom: 0.085 + 0.06 * smooth(300, 3000, D),
+      glare: 2.2 * smooth(260, 1800, D),
+      glarePos: [0.5, 0.5],
+      bloom: 0.055 + 0.03 * smooth(18, 45, D) + 0.06 * smooth(300, 3000, D),
       streak: 0.035 + 0.05 * smooth(300, 3000, D),
     };
   };

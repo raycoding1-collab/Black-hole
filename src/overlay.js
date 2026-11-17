@@ -68,7 +68,7 @@
     ctx.save();
     const size = (final ? 150 : 168) * u;
     const sp = size * (0.36 + 0.1 * p);
-    const y = final ? H * 0.5 + size * 0.36 : H * 0.79;
+    const y = final ? H * 0.74 : H * 0.79;
     setFont(ctx, 200, size, sp);
     ctx.shadowColor = `rgba(255,214,170,${0.5 * a})`;
     ctx.shadowBlur = 40 * u;
@@ -100,6 +100,13 @@
     const x = W * 0.068, y = H * 0.70;
     const slide = (1 - easeOut((t - cue.t0) / 1.4)) * 26 * u;
     ctx.save();
+    // soft scrim for legibility over bright plasma
+    const sg = ctx.createRadialGradient(x + 300 * u, y + 90 * u, 0, x + 300 * u, y + 90 * u, 620 * u);
+    sg.addColorStop(0, `rgba(0,0,0,${0.5 * a})`);
+    sg.addColorStop(0.55, `rgba(0,0,0,${0.28 * a})`);
+    sg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, y - 560 * u, x + 1000 * u, 1200 * u);
     // accent line + label
     const lw = 54 * u * easeOut((t - cue.t0) / 1.2);
     ctx.strokeStyle = `rgba(255,178,102,${0.95 * a})`;
@@ -253,7 +260,7 @@
   // Returns true if anything was drawn
   BH.drawOverlay = function (ctx, W, H, t, st) {
     ctx.clearRect(0, 0, W, H);
-    const u = H / 1080;
+    const u = W / 1920;
     let any = false;
     for (const cue of BH.cues) {
       if (t < cue.t0 || t > cue.t1) continue;

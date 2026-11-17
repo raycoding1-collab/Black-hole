@@ -28,6 +28,7 @@ const TILES = arg('tiles', String(Math.max(1, Math.round(H / 270))));
 const CRF = arg('crf', '12');
 const PRESET = arg('preset', 'medium');
 const GPU = flag('gpu');
+const PADH = arg('padh') ? +arg('padh') : 0;
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 
@@ -39,7 +40,7 @@ let stillNames = STILLS ? STILLS.split(',') : null;
 function startFFmpeg() {
   const args = ['-y', '-hide_banner', '-loglevel', 'error',
     '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${W}x${H}`, '-r', String(FPS), '-i', '-',
-    '-vf', 'vflip,format=yuv420p', '-c:v', 'libx264', '-preset', PRESET, '-crf', CRF,
+    '-vf', 'vflip' + (PADH ? `,pad=${W}:${PADH}:0:(oh-ih)/2:black` : '') + ',format=yuv420p', '-c:v', 'libx264', '-preset', PRESET, '-crf', CRF,
     '-profile:v', 'high', '-tune', 'film', '-x264-params', 'aq-mode=3', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709',
     '-movflags', '+faststart', OUT];
   ff = spawn('ffmpeg', args, { stdio: ['pipe', 'inherit', 'inherit'] });

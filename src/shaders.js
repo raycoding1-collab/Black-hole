@@ -249,10 +249,10 @@ void main() {
     for (int i = 0; i < MAX_STEPS; i++) {
       if (r < 1.0) { captured = 1.0; break; }
       if (r > uRBound && dot(x, v) > 0.0) break;
-      if (trans < 0.004) break;
+      if (trans < 0.01) break;
 
       float vlen = length(v);
-      float ds = uStepScale * 0.085 * r;
+      float ds = uStepScale * mix(0.08, 0.13, smoothstep(6.0, 20.0, r)) * r;
       ds = min(ds, max(0.6 * (r - 1.0), 0.04) + 0.02);
 
       float rho = length(x.xz);
@@ -267,8 +267,8 @@ void main() {
           if (x.y * vy < 0.0) ds = min(ds, (ay - Hb) / max(abs(vy), 1e-4) + 0.35 * sig);
         } else {
           inSlab = true;
-          ds = min(ds, max(0.55 * sig / max(abs(vy), 0.12), 0.06 * sig));
-          ds = min(ds, 0.05 * rho + 0.03);
+          ds = min(ds, max(0.85 * sig / max(abs(vy), 0.12), 0.08 * sig));
+          ds = min(ds, 0.07 * rho + 0.03);
         }
       }
 
@@ -310,11 +310,15 @@ void main() {
 #endif
 #ifndef NO_JET
       // ---- relativistic jets ----
-      if (segL > 1e-5 && (abs(x.y) > 1.0 || abs(xn.y) > 1.0)) {
-        float rhoMin = min(length(x.xz), length(xn.xz));
-        if (rhoMin < 3.0 * jetRadius(max(abs(x.y), abs(xn.y))) + segL) {
+      {
+        vec2 a2 = x.xz, b2 = seg.xz;
+        float bb2 = dot(b2, b2);
+        float tc = bb2 > 1e-10 ? clamp(-dot(a2, b2) / bb2, 0.0, 1.0) : 0.0;
+        vec2 c2 = a2 + b2 * tc;
+        float yc = abs(x.y + seg.y * tc);
+        float Rj = jetRadius(yc);
+        if (yc > 1.1 && dot(c2, c2) < 9.0 * Rj * Rj && segL > 1e-5)
           col += trans * jetSegment(x, seg / segL, segL);
-        }
       }
 
 #endif
@@ -433,6 +437,8 @@ uniform float uOverlayOn;
 uniform float uFrame;
 uniform float uGrain;
 uniform float uCA;
+uniform vec2 uGlarePos;
+uniform float uGlare;
 out vec4 o;
 
 vec3 aces(vec3 x) {
@@ -460,8 +466,19 @@ void main() {
   vec3 bloom = texture(uBloom, uv).rgb;
   vec3 streak = texture(uStreak, uv).rgb * vec3(0.75, 0.85, 1.15);
   vec3 c = hdr + bloom * uBloomStrength + streak * uStreakStrength;
+  if (uGlare > 0.0) {             // camera glare around the point-like quasar
+    vec2 d = (uv - uGlarePos) * vec2(uRes.x / uRes.y, 1.0);
+    float r = length(d);
+    float halo = 1.0 / (1.0 + r * r / 1.2e-5) + 0.12 / (1.0 + r * r / 4e-4) + 0.02 * exp(-r / 0.12);
+    vec2 q = mat2(0.906, 0.423, -0.423, 0.906) * d;
+    float sp = exp(-abs(q.y) / 0.0007) * exp(-abs(q.x) / 0.09) + exp(-abs(q.x) / 0.0007) * exp(-abs(q.y) / 0.06) * 0.7;
+    c += vec3(1.0, 0.9, 0.78) * uGlare * (halo + 0.5 * sp);
+  }
   c *= uExposure;
-  c = aces(c);
+  float Lin = max(dot(c, vec3(0.2126, 0.7152, 0.0722)), 1e-6);
+  vec3 cA = aces(c);
+  vec3 cH = clamp(c * (dot(aces(vec3(Lin)), vec3(0.2126, 0.7152, 0.0722)) / Lin), 0.0, 1.0);
+  c = mix(cA, cH, 0.55);
   // gentle filmic grade: cool shadows, warm highlights
   float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   c = mix(c * vec3(0.94, 0.98, 1.06), c * vec3(1.03, 1.0, 0.95), smoothstep(0.05, 0.6, l));

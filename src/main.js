@@ -269,6 +269,8 @@
       gl.uniform1f(C.u.uFrame, frame % 4096);
       gl.uniform1f(C.u.uGrain, 0.010);
       gl.uniform1f(C.u.uCA, 0.0045);
+      gl.uniform2f(C.u.uGlarePos, st.glarePos ? st.glarePos[0] : 0.5, st.glarePos ? st.glarePos[1] : 0.5);
+      gl.uniform1f(C.u.uGlare, st.glare || 0);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       gl.activeTexture(gl.TEXTURE0);
     }
@@ -328,7 +330,7 @@
     const list = times ? times.map((t, i) => ({ t, id: i })) : Array.from({ length: end - start }, (_, i) => ({ t: (start + i) / fps, id: start + i }));
     for (const item of list) {
       const t0 = performance.now();
-      const st = BH.frameState(item.t);
+      const st = BH.frameState(item.t, W / H);
       const any = BH.drawOverlay(octx, W, H, item.t, st);
       if (any) R.uploadOverlay(ov);
       R.render(st, { quality, tiles, overlayOn: any, frame: item.id });
@@ -371,7 +373,7 @@
       const H = Math.max(36, Math.round(window.innerHeight * dpr * scale));
       R.resize(W, H);
       if (ov.width !== W || ov.height !== H) { ov.width = W; ov.height = H; }
-      const st = BH.frameState(t);
+      const st = BH.frameState(t, W / H);
       const any = ui.cap.checked && BH.drawOverlay(octx, W, H, t, st);
       if (any) R.uploadOverlay(ov);
       R.render(st, { quality: 1.0, tiles: 1, overlayOn: any, toCanvas: true, frame: frame++ });
