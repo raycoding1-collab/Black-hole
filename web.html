@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>TON 618 — Journey to an Ultramassive Black Hole</title>
+<meta name="description" content="A real-time, general-relativistic journey to TON 618, one of the most massive black holes ever discovered: 40.7 billion solar masses, 10.8 billion light-years away.">
+<meta property="og:title" content="TON 618 — Journey to an Ultramassive Black Hole">
+<meta property="og:description" content="Real-time GPU ray tracing through curved spacetime. Lensing, Doppler beaming and a sense of truly cosmic scale.">
+<meta property="og:image" content="media/poster.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site/style.css">
+</head>
+<body class="is-loading">
+  <canvas id="bh" aria-label="Real-time ray-traced rendering of the black hole TON 618"></canvas>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <svg id="lines" aria-hidden="true"></svg>
+  <div id="labels" aria-hidden="true"></div>
+
+  <!-- loader -->
+  <div id="loader">
+    <div class="ld-ring"></div>
+    <div class="ld-title">TON&nbsp;618</div>
+    <div class="ld-sub" id="ld-sub">Bending spacetime&hellip;</div>
+  </div>
+
+  <!-- header -->
+  <header id="top">
+    <button class="brand" id="brand" aria-label="Back to start">TON&nbsp;618</button>
+    <nav class="modes">
+      <button id="m-tour" class="on">Tour</button>
+      <button id="m-explore">Explore</button>
+      <button id="m-film">Film</button>
+    </nav>
+    <div class="tools">
+      <button id="b-sound" class="icon" aria-label="Toggle sound" title="Sound">
+        <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="mute" d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- story progress (segments) -->
+  <div id="segs" role="tablist" aria-label="Chapters"></div>
+
+  <!-- hero -->
+  <section id="hero">
+    <p class="eyebrow">10.8 billion light-years away</p>
+    <h1>TON&nbsp;618</h1>
+    <p class="lede">A journey to one of the most massive black holes ever discovered, ray traced live through curved spacetime on your device.</p>
+    <div class="cta-row">
+      <button class="btn primary" id="begin">Begin the journey</button>
+      <button class="btn ghost" id="hero-film">Watch the film</button>
+    </div>
+    <p class="hint" id="hero-hint">The tour starts automatically</p>
+  </section>
+
+  <!-- chapter card -->
+  <article id="card" aria-live="polite">
+    <div class="card-in">
+      <div class="meta"><span class="kicker" id="c-kicker"></span><span class="count" id="c-count"></span></div>
+      <h2 id="c-title"></h2>
+      <p id="c-body"></p>
+      <dl class="facts" id="c-facts"></dl>
+      <div class="card-foot">
+        <button class="icon nav" id="prev" aria-label="Previous chapter"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <button class="icon nav" id="pause" aria-label="Pause the tour"><svg viewBox="0 0 24 24"><g class="i-pause"><rect x="7" y="5" width="3" height="14" fill="currentColor"/><rect x="14" y="5" width="3" height="14" fill="currentColor"/></g><path class="i-play" d="M8 5l11 7-11 7z" fill="currentColor"/></svg></button>
+        <button class="icon nav" id="next" aria-label="Next chapter"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <div class="bar"><i id="c-bar"></i></div>
+        <button class="btn small primary" id="c-cta">Watch the film</button>
+      </div>
+    </div>
+  </article>
+
+  <!-- relativity indicator -->
+  <div id="relpill"><span class="dot"></span><span id="reltext">Relativistic effects: on</span></div>
+
+  <!-- explore panel -->
+  <aside id="explore">
+    <p class="ex-hint" id="ex-hint">Drag to orbit &middot; scroll or pinch to zoom</p>
+    <div class="toggles">
+      <label><input type="checkbox" id="t-doppler" checked><span>Doppler beaming</span></label>
+      <label><input type="checkbox" id="t-jets" checked><span>Jets</span></label>
+      <label><input type="checkbox" id="t-spin" checked><span>Auto-orbit</span></label>
+    </div>
+  </aside>
+
+  <!-- live stats -->
+  <div id="stats"><span class="live"></span><span id="st-text">Live ray tracing</span></div>
+
+  <!-- film modal -->
+  <div id="film" role="dialog" aria-modal="true" aria-label="The film">
+    <div class="film-in">
+      <button class="icon close" id="film-close" aria-label="Close film"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      <video id="video" controls playsinline preload="none" poster="media/poster.jpg">
+        <source src="media/TON618_1080p.mp4" type="video/mp4">
+      </video>
+      <p class="film-meta">Journey to TON 618 &middot; 1:27 &middot; <a href="media/TON618_4K.mp4" download>Download 4K</a></p>
+    </div>
+  </div>
+
+  <!-- fallback -->
+  <div id="fallback">
+    <h2>TON 618</h2>
+    <p id="fb-msg">This device can't run the live ray tracer (WebGL2 is required).</p>
+    <button class="btn primary" id="fb-film">Watch the film instead</button>
+  </div>
+
+  <audio id="music" src="media/score.m4a" loop preload="none"></audio>
+
+  <script src="src/shaders.js"></script>
+  <script src="src/noise.js"></script>
+  <script src="src/engine.js"></script>
+  <script src="site/chapters.js"></script>
+  <script src="site/app.js"></script>
+</body>
+</html>

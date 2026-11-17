@@ -17,7 +17,7 @@ for ((s=0; s<TOTAL; s+=CHUNK)); do
     [[ "$have" == "$want" ]] && { echo "skip $seg"; continue; }
   fi
   echo "=== rendering frames $s..$((e-1)) -> $seg  ($(date -u +%H:%M:%S))"
-  node "$DIR/render.cjs" --w "$W" --h "$H" --padh "$PADH" --fps "$FPS" --start "$s" --end "$e" --out "$seg.tmp.mp4" --crf 12 --preset medium 2>&1 | grep -v "GL Driver" | grep -E "frame .*0/|done|rror" 
+  node "$DIR/render.cjs" --w "$W" --h "$H" --padh "$PADH" --fps "$FPS" --start "$s" --end "$e" --out "$seg.tmp.mp4" --crf 12 --preset medium 2>&1 | grep --line-buffered -v "GL Driver" | grep --line-buffered -E "frame .*0/|done|rror"
   mv "$seg.tmp.mp4" "$seg"
 done
 ls "$OUT"/segments/seg_*.mp4 | sed "s|^$OUT/segments/|file 'segments/|; s|$|'|" > "$OUT/list.txt"
