@@ -60,9 +60,36 @@ no pre-made assets, no AI imagery. The score is also original, synthesised from 
 | Luminosity | ≈ 4 × 10⁴⁰ W, about 140 trillion Suns |
 | Constellation | Canes Venatici |
 
+## The website: a live guided tour
+
+`index.html` is an interactive companion to the film. It runs the same ray tracer live in
+the browser on a GPU, on desktops and phones.
+
+* **Auto-tour:** ten chapters. The camera glides between viewpoints on its own, and each stop
+  explains one detail: the quasar, the mass, lensing, the photon ring, Doppler beaming, the
+  Solar System to scale, the accretion disk, the jets, the luminosity and the film.
+* **Live callouts:** the labels are pinned to the actual features of the render (the lensed far
+  side, the photon ring, the approaching and receding sides, the ISCO and the jets), projected
+  every frame.
+* **Live physics demos:** relativity is switched off and back on in front of you. The Solar
+  System zooms out 300-fold to the event horizon.
+* **Explore mode:** drag or touch to orbit, scroll or pinch to zoom, and toggle Doppler
+  beaming, jets and auto-orbit.
+* **Built for every screen:**
+  - Dynamic resolution scaling holds a smooth frame rate.
+  - Phones get a lighter shader tier and a bottom-sheet layout.
+  - A lens shift keeps the black hole clear of the UI.
+  - It handles safe areas and reduced-motion settings.
+* **Controls:**
+  - Mouse: wheel, arrow keys, space (pause), `E` (explore), `F` (fullscreen).
+  - Touch: swipe between chapters.
+
+To host it, enable **GitHub Pages** for this branch: *Settings → Pages → Deploy from a branch*.
+
 ## Run it
 
-**Real-time (needs a GPU):** serve the folder and open `index.html`:
+**Website / real-time (needs a GPU):** serve the folder and open `index.html`
+(the film's real-time preview player is `film.html`):
 
 ```bash
 python3 -m http.server 8000   # then open http://localhost:8000
@@ -90,7 +117,11 @@ node render/render.cjs --stills 26,60 --w 1920 --h 804 --outdir stills
 ## Layout
 
 ```
-index.html          player and exporter entry point
+index.html          the website (guided tour + explore)
+film.html           film preview player and offline exporter entry point
+site/               website chapters, app logic and styles
+src/engine.js       shared WebGL2 engine (quality tiers, toggles, lens shift)
+media/              film encodes, poster, score
 src/shaders.js      geodesic ray tracer, bloom, composite (GLSL ES 3.0)
 src/noise.js        tileable 3D noise volume + blackbody LUT
 src/timeline.js     shots, camera choreography, caption cues
